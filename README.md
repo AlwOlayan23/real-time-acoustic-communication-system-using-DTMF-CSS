@@ -1,319 +1,190 @@
-🎧🔊 Acoustic Communication System – Hybrid DTMF & LoRa-Style Audio Modem
-<img width="627" height="780" alt="image" src="https://github.com/user-attachments/assets/cfaacdbc-40d6-4381-9264-5602377e8555" />
+# 🌊🔊 Acoustic Communication System
 
-A Low-Data-Rate Digital Communication Stack Using Sound in Air
+### **DTMF + LoRa-Style Acoustic Modem with MAVLink-Lite Framing**
 
-4
-📌 Overview
+*A compact, modern, low-data-rate digital communication system using sound.*
 
-This project develops a complete wireless acoustic modem that sends digital information using sound instead of radio waves.
-It is designed as the foundation for future underwater communication, but this phase focuses on air-based communication to allow rapid prototyping, controlled experiments, and algorithm development.
+---
 
-The system integrates:
+## 🚀 1. What This Project Is
 
-DTMF signaling (telecom dual-tone multi-frequency)
+This project builds a **complete acoustic modem** that transmits digital data using **sound** instead of radio waves.
+It operates in **air** for easy experimentation and includes:
 
-LoRa-inspired chirp spread spectrum audio modem
+- **DTMF modem** (tone-based, robust)
+- **LoRa-style chirp spread-spectrum modem** (modern, noise-resilient)
+- **MAVLink-lite message protocol** (framing, CRC, packet structure)
 
-Mavlink-style message framing for structured, reliable messages
+<img width="650" alt="arch" src="https://github.com/user-attachments/assets/cfaacdbc-40d6-4381-9264-5602377e8555"/>
 
-Each modulation method is implemented, tested, and visualized using the provided Jupyter notebooks.
+---
 
-🧱 System Architecture
-┌────────────────────────────────────────────────────────────┐
-│                       APPLICATION LAYER                    │
-│                      (Message Builder)                    │
-│                           Mavlink-lite                     │
-└───────────────▲───────────────────────────▲────────────────┘
-                │                           │
-        DTMF Modem                    LoRa-Chirp Modem
-        (Phase 1)                         (Phase 2)
-                │                           │
-┌───────────────┴───────────────────────────┴────────────────┐
-│               Acoustic PHY (Speaker/Mic)                   │
-│        Tone/Chirp Generation & Signal Processing           │
-└────────────────────────────────────────────────────────────┘
+## 🧱 2. System Overview
 
-🎯 Project Goals
+```
+Application Layer  →  MAVLink-lite Messages  
+                    ↓
+        ┌─────────────────────────┐
+        │      Modulation         │
+        │  DTMF      |     LoRa   │
+        └────────────┴────────────┘
+                    ↓
+        Speaker → Sound Waves → Microphone
+                    ↓
+     Decoder (DTMF / LoRa) → MAVLink Parser
+```
 
-Build a fully functional acoustic modem using speakers and microphones.
+Compact. Modular. Swappable PHY layers.
 
-Implement and compare:
+---
 
-DTMF (simple, robust tone-based communication)
+## 🎯 3. Goals (Short + Clear)
 
-LoRa-style chirp spread spectrum (modern, noise-resistant)
+- Build a **working acoustic modem** with off-the-shelf speakers/mics
+- Compare **DTMF** vs **LoRa chirps**
+- Design a **unified message protocol**
+- Evaluate:
+  - Range
+  - Noise resilience
+  - Symbol timing
+  - Decode accuracy
 
-Define a message protocol based on a simplified MAVLink structure.
+---
 
-Evaluate performance under:
+## 🥇 4. Phase 1 — DTMF Modem (Tone-Based)
 
-distance
+**What it does**  
+Dual-tone signaling using standard telecom frequency pairs.
 
-background noise
+**Key features**
 
-symbol timing errors
+- Symbol = *(low freq + high freq)*
+- FFT-based decoding
+- Start/stop framing
+- Optional parity
+- Spectrogram + FFT visualizations
 
-decoding accuracy
+**Why it matters**  
+Excellent baseline modem: stable, explainable, and easy to debug.
 
-🥇 Phase 1 — DTMF Modulation & Decoding
-📌 Summary
+---
 
-Phase 1 implements a classical DTMF modem, where each symbol is encoded using two simultaneous sinusoidal tones (one low-band, one high-band).
+## 🥇 5. Phase 2 — LoRa-Inspired Chirp Modem
 
-🔬 Implemented Features (from the notebook)
-✔ Tone Generation
+**What it does**  
+Encodes symbols using **frequency-swept chirps** (upchirps + cyclic shifts).
 
-Each symbol generates:
-s(t) = sin(2πf_low t) + sin(2πf_high t)
+**Key features**
 
-Exact frequencies follow the ITU DTMF standard.
+- Linear FM chirp generator
+- Baseband IQ extraction
+- Preamble detection
+- Downchirp de-rotation
+- FFT-based symbol recovery
+- Multi-symbol visualization tools
 
-✔ Decoding Algorithm
+**Why it matters**  
+LoRa-style CSS provides excellent noise robustness even at low SNR.
 
-Recorded audio → windowed FFT
+---
 
-Peak detection finds the two strongest frequencies
+## 🎛️ 6. MAVLink-Lite Framing
 
-Symbol determined by (low_freq, high_freq) lookup
+A lightweight MAVLink-inspired protocol:
 
-Includes:
+- Sync byte
+- Payload length
+- Message ID
+- CRC
+- Sequence counter
+- Serializer + parser state machine
 
-Noise filtering
+**Modulation agnostic** → Works over DTMF or LoRa.
 
-Windowing
+---
 
-Normalization
+## 🔄 7. End-to-End Data Flow
 
-Thresholding logic
+```
+TX: Build Packet → Modulate (DTMF/LoRa) → Speaker  
+RX: Microphone → Demodulate → Parse MAVLink → Application
+```
 
-Can decode sequences like:
+Short. Understandable. Exactly how modern modems are described.
 
-# A 1 3 *
+---
 
-✔ Protocol Design
+## 📊 8. Performance Evaluation
 
-Start tone (e.g., "*")
+Recommended metrics:
 
-Payload tones
+- Distance vs Error Rate
+- SNR sensitivity
+- Chirp timing robustness
+- DTMF confusion matrix
+- Spectrogram analysis
 
-End tone (e.g., "#")
+---
 
-Optional simple parity check
+## 🔧 9. Installation
 
-✔ Visualizations
-
-Spectrogram of transmitted tones
-
-FFT magnitude plots
-
-Symbol-by-symbol decoding timeline
-
-This phase produces a complete working audio modem with stable and explainable behavior.
-
-🥇 Phase 2 — LoRa-Inspired Chirp Spread Spectrum Audio Modem
-<img width="1292" height="756" alt="image" src="https://github.com/user-attachments/assets/15c3cfd1-5843-4a32-8924-8539c3cba213" />
-
-📌 Summary
-
-Phase 2 implements a chirp-based low-data-rate modem inspired by LoRa’s CSS (Chirp Spread Spectrum) but adapted for acoustic transmission.
-
-🔬 Implemented Features (from the notebook)
-✔ Chirp Generation
-
-Upchirps: frequency sweeps low → high
-
-Downchirps: high → low
-
-Linear FM:
-f(t) = f0 + kt
-
-FFTs confirm clean spectral sweeps.
-
-✔ Baseband Conversion
-
-Audio → complex IQ baseband
-
-Frequency de-rotation
-
-Sample alignment for symbol extraction
-
-✔ Symbol Encoding
-
-Each symbol is encoded by circularly shifting an upchirp by M bins
-
-Equivalent to LoRa’s symbol mapping:
-
-symbol → frequency offset → chirp shift
-
-✔ Decoding Algorithm
-
-Multiply received chirp by reference downchirp
-
-FFT to extract dominant bin
-
-Determine symbol index
-
-Includes:
-
-Oversampling removal (OSR reduction)
-
-Preamble detection
-
-Fine time synchronization
-
-Noise handling
-
-Multi-symbol visualization tools
-
-✔ Visualizations
-
-Baseband IQ traces
-
-Chirp correlation peaks
-
-FFT waterfall plots
-
-Symbol energy distributions
-
-This notebook is extremely close to a true acoustic LoRa PHY layer.
-
-🔧 Mavlink-Lite Message Framing Layer
-📌 Role
-
-This layer defines how messages are structured before modulation.
-
-✔ Features from the notebook
-
-Mavlink-style header (sync, length, msg-id)
-
-CRC checksum generation
-
-Sequence numbers
-
-Packetization & serialization
-
-Parsing state machine
-
-Payload builder
-
-The framing is modulation-agnostic, meaning the same packet can be:
-
-encoded as DTMF tones
-
-or encoded as LoRa chirps
-
-This gives the project a real-world communication-protocol structure.
-
-🎛️ Complete End-to-End Transmission Flow
-          TX SIDE                                   RX SIDE
-┌─────────────────────────┐               ┌─────────────────────────┐
-│   Build Packet (Mavlink)│               │  Microphone Capture      │
-└───────────────┬─────────┘               └───────────────┬─────────┘
-                │                                         │
-       Choose Modulation                                Detect
-           ┌───────────────┬─────────────────┐            │
-           │ DTMF Encoder  │  LoRa Encoder   │            │
-           └───────┬───────┴──────┬──────────┘            │
-                   │              │                         │
-                Speaker Output     │                       │
-                   │              │                         │
-              ~ Sound Waves Through Air ~                  │
-                   │              │                         │
-       ┌───────────▼──────────┐ ┌─▼───────────────────┐    │
-       │ DTMF Decoder         │ │ LoRa Symbol Extractor│    │
-       └───────────┬──────────┘ └──────────┬──────────┘    │
-                   ▼                       ▼                │
-             Parse Mavlink Packet   Parse Mavlink Packet    │
-                   ▼                       ▼                │
-           Application Receives Message and Acts on It
-
-📊 Performance Evaluation (Guidelines)
-
-You can add measured results later. Recommended metrics:
-
-Max reliable distance
-
-SNR vs BER
-
-Impact of background noise
-
-Timing drift tolerance
-
-Frequency response of speakers/mics
-
-Spectrograms of received signals
-
-Symbol confusion matrices
-
-Placeholders for your plots:
-
-[PLACEHOLDER: DTMF spectrogram]
-[PLACEHOLDER: Chirp spectrogram]
-[PLACEHOLDER: Correlation peaks]
-[PLACEHOLDER: Mavlink packet logs]
-
-🛠️ Installation
+```bash
 git clone https://github.com/yourrepo/acoustic-modem
 cd acoustic-modem
 pip install -r requirements.txt
+```
 
+**Core dependencies**  
+`numpy`, `scipy`, `matplotlib`, `sounddevice/pyaudio`, `jupyter`
 
-Requirements include:
+---
 
-numpy
+## ▶️ 10. Running the Examples
 
-scipy
+**DTMF**
 
-matplotlib
-
-sounddevice / pyaudio
-
-ipykernel
-
-jupyter
-
-(optional) numba for speed
-
-▶️ Running the Modems
-DTMF Modem
+```bash
 python dtmf_tx.py
 python dtmf_rx.py
+```
 
-LoRa-Style Chirp Modem
+**LoRa Chirp**
+
+```bash
 python lora_tx.py
 python lora_rx.py
+```
 
-Mavlink Encoding
+**MAVLink**
+
+```bash
 python mavlink_encode.py
 python mavlink_decode.py
+```
 
-🚀 Future Work
+---
 
-Underwater adaptation (hydrophones, waterproof drivers)
+## 🚀 11. Future Extensions
 
-Bidirectional links
+- Underwater adaptation (hydrophones)
+- Forward-error correction
+- Adaptive symbol timing
+- OFDM acoustic PHY
+- Long-payload sync sequences
 
-Error-correcting codes (Hamming, Reed-Solomon)
+---
 
-Adaptive symbol timing
+## 🏁 12. Summary
 
-OFDM-based acoustic PHY
+This project delivers a **clean, modular acoustic communication stack**:
 
-Multi-path compensation
+- DTMF modem → simple & robust
+- LoRa-style chirp modem → modern & resilient
+- MAVLink-lite framing → structured messaging
 
-Synchronization sequences for long payloads
+A complete foundation for future **underwater acoustic communication** research.
 
-🏁 Conclusion
+---
 
-This project successfully delivers a complete acoustic communication system, spanning:
-
-A tone-based DTMF modem (simple, stable, educational)
-
-A LoRa-inspired chirp modem (modern, noise-resistant, scalable)
-
-A Mavlink-style framing layer for structured messaging
-
-Full signal processing pipelines, visualization tools, and modular architecture
-
-It forms a solid foundation for advanced underwater or air-based communication research.
+## 👤 Author
+KFUPM 
