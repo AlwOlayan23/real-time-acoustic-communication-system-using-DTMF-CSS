@@ -128,7 +128,7 @@ Recommended metrics:
 ## 🔧 9. Installation
 
 ```bash
-git clone https://github.com/yourrepo/acoustic-modem
+git clone https://github.com/AlwOlayan23/acoustic-modem
 cd acoustic-modem
 pip install -r requirements.txt
 ```
