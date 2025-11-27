@@ -59,10 +59,9 @@ Dual-tone signaling using standard telecom frequency pairs.
 **Key features**
 
 - Symbol = *(low freq + high freq)*
-- FFT-based decoding
 - Start/stop framing
 - Optional parity
-- Spectrogram + FFT visualizations
+- Real-time using joystick
 
 **Why it matters**  
 Excellent baseline modem: stable, explainable, and easy to debug.
